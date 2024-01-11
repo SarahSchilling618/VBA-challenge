@@ -1,0 +1,100 @@
+Sub StockSummary()
+    Dim ws As Worksheet
+
+    For Each ws In ThisWorkbook.Worksheets
+
+        ws.Range("I1").Value = "Ticker"
+        ws.Range("J1").Value = "Yearly Change"
+        ws.Range("K1").Value = "Percent Change"
+        ws.Range("L1").Value = "Total Stock Volume"
+        ws.Range("P1").Value = "Ticker"
+        ws.Range("Q1").Value = "Value"
+        ws.Range("O2").Value = "Greatest % Increase"
+        ws.Range("O3").Value = "Greatest % Decrease"
+        ws.Range("O4").Value = "Greatest Total Volume"
+        
+
+        Dim Ticker_Name As String
+        Dim Total_Ticker_Volume As Double
+        Total_Ticker_Volume = 0
+        Dim Beg_Price As Double
+        Beg_Price = 0
+        Dim End_Price As Double
+        End_Price = 0
+        Dim Yearly_Price_Change As Double
+        Yearly_Price_Change = 0
+        Dim Yearly_Price_Change_Percent As Double
+        Yearly_Price_Change_Percent = 0
+        Dim Max_Ticker_Name As String
+        Dim Max_Percent As Double
+        Max_Percent = 0
+        Dim Min_Percent As Double
+        Min_Percent = 0
+        Dim Max_Volume_Ticker_Name As String
+        Dim Max_Volume As Double
+        Max_Volume = 0
+        
+ 
+        Dim summarytablerow As Long
+        summarytablerow = 2
+        
+
+        lastrow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+        
+        For i = 2 To lastrow
+ 
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+                Ticker_Name = ws.Cells(i, 1).Value
+                End_Price = ws.Cells(i, 6).Value
+                Yearly_Price_Change = End_Price - Beg_Price
+                
+                If Beg_Price <> 0 Then
+                    Yearly_Price_Change_Percent = (Yearly_Price_Change / Beg_Price) * 100
+                End If
+                
+                Total_Ticker_Volume = Total_Ticker_Volume + ws.Cells(i, 7).Value
+                ws.Range("I" & summarytablerow).Value = Ticker_Name
+                ws.Range("J" & summarytablerow).Value = Yearly_Price_Change
+                
+                If (Yearly_Price_Change > 0) Then
+                    ws.Range("J" & summarytablerow).Interior.ColorIndex = 4
+                ElseIf (Yearly_Price_Change <= 0) Then
+                    ws.Range("J" & summarytablerow).Interior.ColorIndex = 3
+                End If
+                
+                ws.Range("K" & summarytablerow).Value = (CStr(Yearly_Price_Change_Percent) & "%")
+                ws.Range("L" & summarytablerow).Value = Total_Ticker_Volume
+                summarytablerow = summarytablerow + 1
+                Beg_Price = ws.Cells(i + 1, 3).Value
+                
+                If (Yearly_Price_Change_Percent > Max_Percent) Then
+                    Max_Percent = Yearly_Price_Change_Percent
+                    Max_Ticker_Name = Ticker_Name
+                ElseIf (Yearly_Price_Change_Percent < Min_Percent) Then
+                    Min_Percent = Yearly_Price_Change_Percent
+                    Min_Ticker_Name = Ticker_Name
+                End If
+                
+                If (Total_Ticker_Volume > Max_Volume) Then
+                    Max_Volume = Total_Ticker_Volume
+                    Max_Volume_Ticker_Name = Ticker_Name
+                End If
+                
+                Yearly_Price_Change_Percent = 0
+                Total_Ticker_Volume = 0
+            Else
+                Total_Ticker_Volume = Total_Ticker_Volume + ws.Cells(i, 7).Value
+            End If
+        Next i
+        
+        ws.Range("P2").Value = (CStr(Max_Percent) & "%")
+        ws.Range("P3").Value = (CStr(Min_Percent) & "%")
+        ws.Range("Q2").Value = Max_Ticker_Name
+        ws.Range("Q3").Value = Min_Ticker_Name
+    ws.Range("Q4").Value = Max_Volume_Ticker_Name
+    ws.Range("P4").Value = Max_Volume
+ws.Range("N2").Value = "Greatest % Increase"
+ws.Range("N3").Value = "Greatest % Decrease"
+ws.Range("N4").Value = "Greatest Total Volume"
+Next ws
+End Sub
